@@ -1,7 +1,8 @@
 package de.lyriaserver.landsentityredstonefix;
 
-import me.angeschossen.lands.api.flags.types.LandFlag;
-import me.angeschossen.lands.api.integration.LandsIntegration;
+import me.angeschossen.lands.api.LandsIntegration;
+import me.angeschossen.lands.api.flags.enums.FlagTarget;
+import me.angeschossen.lands.api.flags.type.NaturalFlag;
 import me.angeschossen.lands.api.land.Area;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -18,7 +19,7 @@ import java.util.Set;
 
 public final class LandsEntityRedstoneFix extends JavaPlugin implements Listener {
     private LandsIntegration lands;
-    private LandFlag entitiesCanActivateMechanisms;
+    private NaturalFlag entitiesCanActivateMechanisms;
     private final ItemStack flagIcon = new ItemStack(Material.ARROW);
     private final Set<Material> checkBlocks = Set.of(
             Material.ACACIA_PRESSURE_PLATE,
@@ -47,15 +48,15 @@ public final class LandsEntityRedstoneFix extends JavaPlugin implements Listener
 
     @Override
     public void onLoad() {
-        lands = new LandsIntegration(this);
-        entitiesCanActivateMechanisms = new LandFlag(this, "entity_mechanisms");
+        lands = LandsIntegration.of(this);
+        entitiesCanActivateMechanisms = NaturalFlag.of(lands, FlagTarget.SYSTEM, "entity_mechanisms");
         entitiesCanActivateMechanisms.setDefaultState(false);
         entitiesCanActivateMechanisms.setDescription(List.of(
                 "Entities wie Items oder Pfeile können Mechanismen auslösen",
                 "Zielscheiben sind ausgenommen!"));
         entitiesCanActivateMechanisms.setDisplayName("Entity-Mechanismen");
         entitiesCanActivateMechanisms.setIcon(flagIcon);
-        lands.registerFlag(entitiesCanActivateMechanisms);
+        lands.getFlagRegistry().register(entitiesCanActivateMechanisms);
     }
 
     @Override
@@ -72,8 +73,8 @@ public final class LandsEntityRedstoneFix extends JavaPlugin implements Listener
     public void onEntityInteract(EntityInteractEvent event) {
         Block block = event.getBlock();
         if (!checkBlocks.contains(block.getType()) || event.getEntityType() == EntityType.PLAYER) return;
-        Area area = lands.getAreaByLoc(block.getLocation());
-        if (area != null && !area.hasFlag(entitiesCanActivateMechanisms)) {
+        Area area = lands.getArea(block.getLocation());
+        if (area != null && !area.hasNaturalFlag(entitiesCanActivateMechanisms)) {
             event.setCancelled(true);
         }
     }
