@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'de.lyriaserver'
-version = '0.1'
+version = '1.0'
 
 repositories {
     mavenCentral()
