@@ -1,0 +1,6 @@
+name: LandsEntityRedstoneFix
+version: '${version}'
+main: de.lyriaserver.landsentityredstonefix.LandsEntityRedstoneFix
+api-version: 1.19
+depend:
+  - Lands
