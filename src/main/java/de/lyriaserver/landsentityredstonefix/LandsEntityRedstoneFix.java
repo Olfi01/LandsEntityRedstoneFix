@@ -1,6 +1,6 @@
 package de.lyriaserver.landsentityredstonefix;
 
-import me.angeschossen.lands.api.flags.Flags;
+import me.angeschossen.lands.api.flags.types.LandFlag;
 import me.angeschossen.lands.api.integration.LandsIntegration;
 import me.angeschossen.lands.api.land.Area;
 import org.bukkit.Material;
@@ -10,14 +10,16 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityInteractEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 public final class LandsEntityRedstoneFix extends JavaPlugin implements Listener {
     private LandsIntegration lands;
-    private final UUID notchUid = UUID.fromString("069a79f4-44e9-4726-a5be-fca90e38aaf5");
+    private LandFlag entitiesCanActivateMechanisms;
+    private final ItemStack flagIcon = new ItemStack(Material.ARROW);
     private final Set<Material> checkBlocks = Set.of(
             Material.ACACIA_PRESSURE_PLATE,
             Material.BIRCH_PRESSURE_PLATE,
@@ -42,10 +44,23 @@ public final class LandsEntityRedstoneFix extends JavaPlugin implements Listener
             Material.WARPED_BUTTON,
             Material.DARK_OAK_BUTTON
     );
+
+    @Override
+    public void onLoad() {
+        lands = new LandsIntegration(this);
+        entitiesCanActivateMechanisms = new LandFlag(this, "entity_mechanisms");
+        entitiesCanActivateMechanisms.setDefaultState(false);
+        entitiesCanActivateMechanisms.setDescription(List.of(
+                "Entities wie Items oder Pfeile können Mechanismen auslösen",
+                "Zielscheiben sind ausgenommen!"));
+        entitiesCanActivateMechanisms.setDisplayName("Entity-Mechanismen");
+        entitiesCanActivateMechanisms.setIcon(flagIcon);
+        lands.registerFlag(entitiesCanActivateMechanisms);
+    }
+
     @Override
     public void onEnable() {
         getServer().getPluginManager().registerEvents(this, this);
-        lands = new LandsIntegration(this);
     }
 
     @Override
@@ -58,7 +73,7 @@ public final class LandsEntityRedstoneFix extends JavaPlugin implements Listener
         Block block = event.getBlock();
         if (!checkBlocks.contains(block.getType()) || event.getEntityType() == EntityType.PLAYER) return;
         Area area = lands.getAreaByLoc(block.getLocation());
-        if (area != null && !area.hasFlag(notchUid, Flags.INTERACT_MECHANISM)) {
+        if (area != null && !area.hasFlag(entitiesCanActivateMechanisms)) {
             event.setCancelled(true);
         }
     }

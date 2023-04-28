@@ -21,7 +21,7 @@ repositories {
 dependencies {
     compileOnly "io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT"
     //compileOnly "com.github.angeschossen:LandsAPI:6.28.11"
-    compileOnly fileTree(dir: 'libs', include: '*.jar')
+    compileOnly fileTree(dir: 'libs', include: 'LandsAPI.jar')
 }
 
 def targetJavaVersion = 17
@@ -38,6 +38,7 @@ tasks.withType(JavaCompile).configureEach {
     if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
         options.release = targetJavaVersion
     }
+    options.encoding = 'UTF-8'
 }
 
 processResources {
